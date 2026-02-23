@@ -20,6 +20,14 @@ You don’t have to be an expert developer to help. Contributions of all sizes a
 
 ## 🚀 Getting Started
 
+### 🌐 Play the Live Version (Recommended)
+The game is already deployed — you can play it instantly without installing anything:
+
+👉 Open the Live App:
+https://your-live-link-here.com
+
+Simply open the link on your phone or tablet and start playing.
+
 ### 1️⃣ Fork the Repository
 
 Click the **Fork** button on GitHub and clone your fork locally.
