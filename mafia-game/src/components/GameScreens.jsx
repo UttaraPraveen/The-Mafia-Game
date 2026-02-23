@@ -239,7 +239,23 @@ export function NightPhaseScreen({ players, round, hasDoctor, hasDetective, onNi
     return <NightAction roleLabel="DETECTIVE" roleColor="#4cc9f0" roleGlow="#4cc9f040" forPlayers={detectivePlayer?.name} prompt="Who do you investigate tonight?" choices={alive.filter(p=>p.id!==detectivePlayer?.id)} selected={actions.detectiveTarget} onSelect={p=>check({...alive.find(a=>a.id===p)})} onConfirm={advance} resultText={detectiveResult} />;
   }
   
-  if (step === "sleeping") return (<div className="screen" style={{ background:"radial-gradient(ellipse at 50% 80%, #0f0520 0%, #03030a 80%)" }}><ParticleCanvas mode="embers" /><div style={{ textAlign:"center", animation:"fadeUp 0.6s ease forwards" }}><div style={{ fontSize:"4.5rem", marginBottom:24, animation:"breathe 3s ease-in-out infinite" }}>😴</div><h2 className="playfair" style={{ color:"var(--mist)", fontSize:"1.6rem", marginBottom:10 }}>The Night Passes</h2><p style={{ color:"var(--mist)", fontSize:"0.75rem", letterSpacing:"0.15em", marginBottom:44, opacity:0.7 }}>EVERYONE MAY OPEN THEIR EYES</p><button className="btn-primary" onClick={advance}><span>☀️  DAWN APPROACHES</span></button></div></div>);
+  // SLEEPING STATE - Replaced Button with Timer
+  if (step === "sleeping") {
+    return (
+      <div className="screen" style={{ background:"radial-gradient(ellipse at 50% 80%, #0f0520 0%, #03030a 80%)" }}>
+        <ParticleCanvas mode="embers" />
+        <div style={{ textAlign:"center", animation:"fadeUp 0.6s ease forwards" }}>
+          <div style={{ fontSize:"4.5rem", marginBottom:24, animation:"breathe 3s ease-in-out infinite" }}>😴</div>
+          <h2 className="playfair" style={{ color:"var(--mist)", fontSize:"1.6rem", marginBottom:10 }}>The Night Passes</h2>
+          <p style={{ color:"var(--mist)", fontSize:"0.75rem", letterSpacing:"0.15em", marginBottom:44, opacity:0.7 }}>EVERYONE MAY OPEN THEIR EYES</p>
+          <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:16 }}>
+             <CountdownRing seconds={5} onComplete={advance} color="#c9a84c" size={160} />
+             <p className="playfair" style={{ color:"var(--gold)", fontSize:"0.9rem", fontStyle:"italic" }}>Dawn approaches...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
   return null;
 }
 
