@@ -105,6 +105,7 @@ The terminal will show a local URL (usually http://localhost:5173).
 
 This project follows a modular structure to separate logic, UI, and state management.
 
+```plaintext
 src/
 ├── components/
 │   ├── GameScreens.jsx    # All phase-specific screens (Setup, Night, Day, Voting)
@@ -118,7 +119,7 @@ src/
 │   └── gameLogic.js       # Pure functions for game rules (Shuffling, Voting math)
 ├── App.jsx                # Main State Machine (Controls game flow)
 └── main.jsx               # Entry point
-
+```
 ---
 
 ## 📄 License
