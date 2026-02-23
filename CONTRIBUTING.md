@@ -24,7 +24,7 @@ You don’t have to be an expert developer to help. Contributions of all sizes a
 The game is already deployed — you can play it instantly without installing anything:
 
 👉 Open the Live App:
-https://your-live-link-here.com
+https://the-mafia-game-nu.vercel.app/
 
 Simply open the link on your phone or tablet and start playing.
 
