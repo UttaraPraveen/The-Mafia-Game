@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { ROLES, NARRATOR } from "../utils/constants";
-import { Screen, Card, Btn, Divider, NarratorText } from "./UI";
+import { ParticleCanvas, AmbientOrb, CountdownRing } from "./UI";
 
-// --- SETUP SCREEN ---
+// 🏠 SETUP SCREEN
 export function SetupScreen({ onStart }) {
   const [playerCount, setPlayerCount] = useState(6);
   const [mafiaCount, setMafiaCount] = useState(1);
@@ -15,8 +15,8 @@ export function SetupScreen({ onStart }) {
     setPlayerNames(Array.from({ length: playerCount }, (_, i) => `Player ${i + 1}`));
   }, [playerCount]);
 
-  const specialRoles = (hasDoctor ? 1 : 0) + (hasDetective ? 1 : 0);
-  const villagerCount = playerCount - mafiaCount - specialRoles;
+  const specials = (hasDoctor ? 1 : 0) + (hasDetective ? 1 : 0);
+  const villagerCount = playerCount - mafiaCount - specials;
   const isValid = villagerCount >= 1 && mafiaCount >= 1;
 
   function handleStart() {
@@ -25,235 +25,350 @@ export function SetupScreen({ onStart }) {
 
   if (step === "names") {
     return (
-      <Screen>
-        <div style={{ width: "100%", maxWidth: 420 }}>
-          <h1 className="cinzel" style={{ textAlign: "center", fontSize: "1.4rem", color: "var(--accent-gold)", marginBottom: 8 }}>ENTER PLAYER NAMES</h1>
-          <Divider />
-          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
-            {playerNames.map((name, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ color: "var(--text-muted)", width: 24, textAlign: "right", fontSize: "0.9rem" }}>{i + 1}.</span>
-                <input value={name} onChange={(e) => { const updated = [...playerNames]; updated[i] = e.target.value; setPlayerNames(updated); }}
-                  style={{ flex: 1, background: "var(--bg-panel)", border: "1px solid var(--border)", borderRadius: 4, padding: "10px 14px", color: "var(--text-primary)", fontSize: "1rem", fontFamily: "'Crimson Pro', serif", outline: "none" }} />
-              </div>
-            ))}
+      <div className="screen">
+        <ParticleCanvas mode="embers" />
+        <AmbientOrb color="#c9a84c" x={20} y={20} size={400} delay={0} />
+        <AmbientOrb color="#e63946" x={80} y={70} size={300} delay={4} />
+        <div style={{ width:"100%", maxWidth:420, animation:"fadeUp 0.5s ease forwards" }}>
+          <h2 className="playfair gold-text" style={{ fontSize:"1.3rem", textAlign:"center", marginBottom:6 }}>
+            Who Walks These Streets?
+          </h2>
+          <p style={{ color:"var(--mist)", textAlign:"center", fontSize:"0.7rem", letterSpacing:"0.25em", marginBottom:28 }}>ENTER PLAYER NAMES</p>
+          <div className="glass-card" style={{ padding:24, marginBottom:20 }}>
+            <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+              {playerNames.map((name, i) => (
+                <div key={i} style={{ display:"flex", alignItems:"center", gap:12, animation:`fadeUp ${0.2+i*0.04}s ease both`, opacity:0, animationFillMode:"forwards" }}>
+                  <span style={{ color:"var(--blood)", fontFamily:"'Playfair Display',serif", width:22, textAlign:"right", fontSize:"0.9rem" }}>{i+1}</span>
+                  <input className="input" value={name} onChange={e => { const u=[...playerNames]; u[i]=e.target.value; setPlayerNames(u); }} placeholder={`Player ${i+1}`} />
+                </div>
+              ))}
+            </div>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <Btn onClick={handleStart} disabled={!isValid || playerNames.some((n) => !n.trim())}>BEGIN THE GAME</Btn>
-            <Btn onClick={() => setStep("config")} variant="ghost">← Back</Btn>
+          <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+            <button className="btn-primary" onClick={handleStart} disabled={!isValid || playerNames.some(n=>!n.trim())}><span>BEGIN THE NIGHT ✦</span></button>
+            <button className="btn-ghost" onClick={() => setStep("config")}>← Back to Setup</button>
           </div>
         </div>
-      </Screen>
+      </div>
     );
   }
 
   return (
-    <Screen>
-      <div style={{ textAlign: "center", marginBottom: 32 }}>
-        <div style={{ fontSize: "3.5rem", marginBottom: 8, animation: "float 3s ease-in-out infinite" }}>🎭</div>
-        <h1 className="cinzel" style={{ fontSize: "clamp(1.8rem, 6vw, 2.6rem)", background: "linear-gradient(135deg, #d4a017, #f0c040, #d4a017)", backgroundSize: "200% auto", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", animation: "shimmer 3s linear infinite", lineHeight: 1.2 }}>MAFIA</h1>
+    <div className="screen">
+      <ParticleCanvas mode="embers" />
+      <AmbientOrb color="#e63946" x={15} y={25} size={500} delay={0} />
+      <AmbientOrb color="#c9a84c" x={85} y={75} size={400} delay={6} />
+      <AmbientOrb color="#4cc9f0" x={50} y={10} size={280} delay={3} />
+
+      <div style={{ textAlign:"center", marginBottom:36, animation:"fadeDown 0.7s ease forwards" }}>
+        <div className="fraktur" style={{ fontSize:"clamp(3.5rem, 14vw, 6rem)", color:"#e63946", textShadow:"0 0 40px #e6394688, 0 0 80px #e6394430", animation:"breathe 4s ease-in-out infinite", lineHeight:1, marginBottom:12 }}>Mafia</div>
+        <div style={{ display:"flex", alignItems:"center", gap:12, justifyContent:"center" }}>
+          <div style={{ height:1, width:44, background:"linear-gradient(90deg, transparent, var(--gold))" }} />
+          <span style={{ color:"var(--gold)", fontSize:"0.6rem", letterSpacing:"0.35em" }}>A GAME OF DECEPTION</span>
+          <div style={{ height:1, width:44, background:"linear-gradient(90deg, var(--gold), transparent)" }} />
+        </div>
       </div>
-      <Card>
-        <div style={{ marginBottom: 24 }}>
-          <label style={{ display: "block", color: "var(--accent-gold)", fontSize: "0.85rem", letterSpacing: "0.1em", marginBottom: 10 }}>PLAYERS — {playerCount}</label>
-          <input type="range" min={5} max={15} value={playerCount} onChange={(e) => setPlayerCount(parseInt(e.target.value))} style={{ width: "100%", accentColor: "var(--accent-gold)" }} />
+
+      <div className="glass-card" style={{ padding:28, width:"100%", maxWidth:420, animation:"fadeUp 0.6s 0.15s ease both" }}>
+        <div style={{ marginBottom:28 }}>
+          <div style={{ display:"flex", justifyContent:"space-between", marginBottom:12 }}>
+            <span style={{ color:"var(--mist)", fontSize:"0.68rem", letterSpacing:"0.22em" }}>PLAYERS</span>
+            <span className="playfair" style={{ color:"var(--gold)", fontSize:"1.3rem" }}>{playerCount}</span>
+          </div>
+          <input type="range" min={5} max={15} value={playerCount} onChange={e => { const n=parseInt(e.target.value); setPlayerCount(n); const maxM=Math.floor((n-specials-1)/2); if (mafiaCount>maxM) setMafiaCount(Math.max(1,maxM)); }} />
         </div>
-        <div style={{ marginBottom: 24 }}>
-          <label style={{ display: "block", color: "#e63946", fontSize: "0.85rem", letterSpacing: "0.1em", marginBottom: 10 }}>MAFIA — {mafiaCount}</label>
-          <input type="range" min={1} max={Math.max(1, Math.floor((playerCount - specialRoles - 1) / 2))} value={mafiaCount} onChange={(e) => setMafiaCount(parseInt(e.target.value))} style={{ width: "100%", accentColor: "#e63946" }} />
+
+        <div style={{ marginBottom:28 }}>
+          <div style={{ display:"flex", justifyContent:"space-between", marginBottom:12 }}>
+            <span style={{ color:"var(--mist)", fontSize:"0.68rem", letterSpacing:"0.22em" }}>MAFIA</span>
+            <span className="playfair" style={{ color:"var(--blood)", fontSize:"1.3rem" }}>{mafiaCount}</span>
+          </div>
+          <input type="range" min={1} max={Math.max(1,Math.floor((playerCount-specials-1)/2))} value={mafiaCount} onChange={e=>setMafiaCount(parseInt(e.target.value))} style={{ accentColor:"var(--blood)" }} />
         </div>
-        <Divider />
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 24 }}>
-          {[{ key: "doc", label: "Doctor 💊", s: hasDoctor, f: setHasDoctor, c: "#27ae60" }, { key: "det", label: "Detective 🔍", s: hasDetective, f: setHasDetective, c: "#2980b9" }].map((t) => (
-            <button key={t.key} onClick={() => t.f(!t.s)} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: t.s ? `${t.c}22` : "var(--bg-panel)", border: `1.5px solid ${t.s ? t.c : "rgba(255,255,255,0.08)"}`, borderRadius: 6, padding: "12px 16px", color: t.s ? t.c : "var(--text-muted)", cursor: "pointer", fontFamily: "'Crimson Pro', serif", fontSize: "1rem", transition: "all 0.2s" }}>
-              <span>{t.label}</span><span style={{ width: 20, height: 20, borderRadius: "50%", background: t.s ? t.c : "transparent", border: `2px solid ${t.s ? t.c : "var(--text-muted)"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem" }}>{t.s ? "✓" : ""}</span>
+
+        <div className="divider" />
+
+        <div style={{ display:"flex", flexDirection:"column", gap:10, marginBottom:24 }}>
+          {[
+            { key:"doctor", label:"Doctor", sub:"Saves one life per night", state:hasDoctor, set:setHasDoctor, color:"#2ecc71", emoji:"💉" },
+            { key:"detective", label:"Detective", sub:"Investigates one player per night", state:hasDetective, set:setHasDetective, color:"#4cc9f0", emoji:"🕵️" },
+          ].map(({ key, label, sub, state, set, color, emoji }) => (
+            <button key={key} onClick={()=>set(!state)} style={{ display:"flex", alignItems:"center", gap:14, padding:"14px 16px", background: state ? `${color}14` : "rgba(13,13,26,0.6)", border:`1px solid ${state ? color+"55" : "rgba(255,255,255,0.07)"}`, borderRadius:2, cursor:"pointer", transition:"all 0.25s", textAlign:"left" }}>
+              <span style={{ fontSize:"1.3rem" }}>{emoji}</span>
+              <div style={{ flex:1 }}>
+                <div style={{ color:state?color:"var(--mist)", fontSize:"0.83rem", letterSpacing:"0.1em", marginBottom:2 }}>{label}</div>
+                <div style={{ color:"var(--mist)", fontSize:"0.68rem", opacity:0.7 }}>{sub}</div>
+              </div>
+              <div style={{ width:22, height:22, borderRadius:"50%", border:`2px solid ${state?color:"rgba(255,255,255,0.2)"}`, background:state?color:"transparent", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"0.7rem", color:"#000", transition:"all 0.25s", boxShadow:state?`0 0 12px ${color}88`:"none" }}>{state?"✓":""}</div>
             </button>
           ))}
         </div>
-        <Btn onClick={() => setStep("names")} disabled={!isValid}>NEXT →</Btn>
-      </Card>
-    </Screen>
+
+        <div style={{ display:"flex", gap:10, flexWrap:"wrap", padding:"12px 16px", marginBottom:24, background:"rgba(3,3,10,0.5)", borderRadius:2 }}>
+          <Pip count={mafiaCount} color="#e63946" label="Mafia" />
+          {hasDoctor && <Pip count={1} color="#2ecc71" label="Doctor" />}
+          {hasDetective && <Pip count={1} color="#4cc9f0" label="Detective" />}
+          <Pip count={Math.max(0,villagerCount)} color="#f4a261" label="Town" />
+        </div>
+
+        {!isValid && <p style={{ color:"var(--blood)", fontSize:"0.72rem", textAlign:"center", marginBottom:16, letterSpacing:"0.1em", animation:"startle 0.5s ease" }}>Need at least 1 Villager — reduce roles or add players</p>}
+        <button className="btn-primary" onClick={()=>setStep("names")} disabled={!isValid}><span>CONTINUE →</span></button>
+      </div>
+    </div>
   );
 }
 
-// --- ROLE REVEAL SCREEN ---
+// 🃏 ROLE REVEAL SCREEN
 export function RoleRevealScreen({ players, revealIndex, onRevealNext, onAllRevealed, speak }) {
   const [showing, setShowing] = useState(false);
+  const [ripple, setRipple] = useState(false);
   const player = players[revealIndex];
   const role = ROLES[player?.role];
   const isLast = revealIndex === players.length - 1;
 
   function handleReveal() {
-    setShowing(true);
-    // REMOVED: speak(`${player.name}. You are the ${role.name}. ${role.description}`);
-    // Now it will be silent when you tap "Reveal My Role"
+    setRipple(true);
+    setTimeout(() => { setRipple(false); setShowing(true); }, 450);
+    // Silent reveal as requested
   }
 
   function handleNext() {
     setShowing(false);
-    setTimeout(() => { isLast ? onAllRevealed() : onRevealNext(); }, 300);
+    setTimeout(() => { if (isLast) onAllRevealed(); else onRevealNext(); }, 350);
   }
 
   return (
-    <Screen style={{ background: "var(--bg-dark)" }}>
-      <div style={{ display: "flex", gap: 6, marginBottom: 32 }}>
-        {players.map((_, i) => (<div key={i} style={{ width: 8, height: 8, borderRadius: "50%", background: i < revealIndex ? "var(--accent-gold)" : i === revealIndex ? "#fff" : "var(--bg-panel)", transition: "all 0.3s" }} />))}
+    <div className="screen" style={{ background:"radial-gradient(ellipse at 50% 30%, #0a0520 0%, #03030a 80%)" }}>
+      <ParticleCanvas mode="embers" />
+      <AmbientOrb color={showing ? role.color : "#c9a84c"} x={50} y={30} size={500} delay={0} />
+      <div style={{ position:"fixed", top:22, left:0, right:0, display:"flex", justifyContent:"center", gap:7, zIndex:10 }}>
+        {players.map((_,i) => (<div key={i} style={{ width: i===revealIndex ? 26 : 8, height:3, borderRadius:2, background: i<revealIndex ? "var(--gold)" : i===revealIndex ? "var(--blood)" : "rgba(255,255,255,0.08)", transition:"all 0.4s ease", boxShadow: i===revealIndex ? "0 0 10px var(--blood)" : "none" }} />))}
       </div>
+
       {!showing ? (
-        <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: "4rem", marginBottom: 24 }}>👁️</div>
-          <h2 className="cinzel" style={{ fontSize: "1.6rem", color: "var(--accent-gold)", marginBottom: 8 }}>{player.name}</h2>
-          <p style={{ color: "var(--text-muted)", fontStyle: "italic", marginBottom: 32 }}>Make sure no one else is watching</p>
-          <Btn onClick={handleReveal}>REVEAL MY ROLE</Btn>
+        <div style={{ textAlign:"center", animation:"fadeUp 0.5s ease forwards" }}>
+          <div style={{ width:110, height:110, borderRadius:"50%", border:"1px solid var(--border)", background:"radial-gradient(circle, #1a1a2e, #07070f)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 28px", fontSize:"3rem", animation:"breathe 3s ease-in-out infinite", position:"relative", cursor:"pointer", boxShadow:"0 0 40px rgba(201,168,76,0.1), inset 0 0 30px rgba(0,0,0,0.5)" }} onClick={handleReveal}>
+            {ripple && <div style={{ position:"absolute", inset:-12, borderRadius:"50%", border:"2px solid var(--gold)", animation:"ripple 0.6s ease-out forwards" }} />}
+            👁️
+          </div>
+          <p style={{ color:"var(--mist)", fontSize:"0.65rem", letterSpacing:"0.3em", marginBottom:8 }}>YOUR FATE AWAITS</p>
+          <h2 className="playfair gold-text" style={{ fontSize:"clamp(1.8rem, 7vw, 2.5rem)", marginBottom:28 }}>{player.name}</h2>
+          <p style={{ color:"var(--mist)", fontSize:"0.8rem", marginBottom:36, fontStyle:"italic" }}>Hold the device close. Only you should see.</p>
+          <button className="btn-primary" onClick={handleReveal}><span>REVEAL MY ROLE</span></button>
         </div>
       ) : (
-        <div style={{ textAlign: "center", animation: "roleReveal 0.5s ease forwards" }}>
-          <div style={{ fontSize: "5rem", marginBottom: 16, animation: "float 2s ease-in-out infinite" }}>{role.emoji}</div>
-          <h2 className="cinzel" style={{ fontSize: "2.2rem", color: role.color, marginBottom: 8 }}>{role.name.toUpperCase()}</h2>
-          <Divider />
-          <p style={{ fontStyle: "italic", fontSize: "1.1rem", color: "var(--text-primary)", maxWidth: 300, margin: "0 auto 32px", lineHeight: 1.6 }}>{role.description}</p>
-          <Btn onClick={handleNext}>{isLast ? "START GAME" : "DONE — PASS DEVICE →"}</Btn>
+        <div style={{ textAlign:"center", animation:"revealCard 0.65s cubic-bezier(0.23,1,0.32,1) forwards" }}>
+          <div style={{ width:130, height:130, borderRadius:"50%", border:`2px solid ${role.color}`, background:`radial-gradient(circle, ${role.color}22, #07070f)`, display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 24px", fontSize:"3.8rem", boxShadow:`0 0 50px ${role.glow}, 0 0 100px ${role.color}18`, animation:"float 3s ease-in-out infinite" }}>{role.emoji}</div>
+          <p style={{ color:"var(--mist)", fontSize:"0.62rem", letterSpacing:"0.32em", marginBottom:6 }}>YOU ARE THE</p>
+          <h2 className="playfair" style={{ fontSize:"clamp(2rem, 8vw, 3rem)", color:role.color, textShadow:`0 0 30px ${role.color}`, marginBottom:20 }}>{role.name}</h2>
+          <div style={{ height:1, background:`linear-gradient(90deg, transparent, ${role.color}55, transparent)`, marginBottom:20 }} />
+          <p className="playfair" style={{ color:"var(--ghost)", fontSize:"1rem", fontStyle:"italic", lineHeight:1.8, maxWidth:290, margin:"0 auto 36px" }}>"{role.description}"</p>
+          <button className="btn-primary" onClick={handleNext}><span>{isLast ? "✦ BEGIN THE GAME ✦" : "DONE — PASS THE DEVICE"}</span></button>
         </div>
       )}
-    </Screen>
+    </div>
   );
 }
 
-// --- NIGHT PHASE SCREEN ---
-export function NightPhaseScreen({ players, round, hasDoctor, hasDetective, onNightComplete, speak, stop }) {
-  const alivePlayers = players.filter((p) => p.alive);
-  const mafiaPlayers = players.filter((p) => p.role === "mafia" && p.alive);
-  const doctorPlayer = players.find((p) => p.role === "doctor" && p.alive);
-  const detectivePlayer = players.find((p) => p.role === "detective" && p.alive);
-  
-  const nightSteps = ["intro", "mafia"];
-  if (hasDoctor && doctorPlayer) nightSteps.push("doctor");
-  if (hasDetective && detectivePlayer) nightSteps.push("detective");
-  nightSteps.push("sleeping");
+// 🌑 NIGHT PHASE SCREEN
+export function NightPhaseScreen({ players, round, hasDoctor, hasDetective, onNightComplete, speak }) {
+  const alive = players.filter(p=>p.alive);
+  const mafiaPlayers = players.filter(p=>p.role==="mafia"&&p.alive);
+  const doctorPlayer = players.find(p=>p.role==="doctor"&&p.alive);
+  const detectivePlayer = players.find(p=>p.role==="detective"&&p.alive);
 
-  const [stepIndex, setStepIndex] = useState(0);
-  const [nightActions, setNightActions] = useState({ mafiaTarget: null, doctorSave: null, detectiveTarget: null });
+  const steps = ["intro"];
+  if (mafiaPlayers.length) steps.push("countdown","mafia");
+  if (hasDoctor && doctorPlayer) steps.push("doctor");
+  if (hasDetective && detectivePlayer) steps.push("detective");
+  steps.push("sleeping");
+
+  const [stepIdx, setStepIdx] = useState(0);
+  const [actions, setActions] = useState({ mafiaTarget:null, doctorSave:null, detectiveTarget:null });
   const [detectiveResult, setDetectiveResult] = useState(null);
-  const currentStep = nightSteps[stepIndex];
+  const step = steps[stepIdx];
 
   useEffect(() => {
-    const lines = { intro: NARRATOR.spoken.nightFalls, mafia: NARRATOR.spoken.mafiaWakes, doctor: NARRATOR.spoken.doctorWakes, detective: NARRATOR.spoken.detectiveWakes, sleeping: NARRATOR.spoken.allSleep };
-    if (lines[currentStep]) speak(lines[currentStep]);
-  }, [currentStep, speak]);
+    const lines = { intro: NARRATOR.spoken.nightFalls, countdown: NARRATOR.spoken.eyesClosed, mafia: NARRATOR.spoken.mafiaWakes, doctor: NARRATOR.spoken.doctorWakes, detective: NARRATOR.spoken.detectiveWakes, sleeping: NARRATOR.spoken.allSleep };
+    if (lines[step]) speak(lines[step]);
+  }, [step]);
 
-  function advanceStep() {
-    if (stepIndex < nightSteps.length - 1) {
-      setDetectiveResult(null);
-      setStepIndex(stepIndex + 1);
-    } else {
-      onNightComplete(nightActions);
-    }
+  function advance() {
+    if (stepIdx < steps.length - 1) { setDetectiveResult(null); setStepIdx(s=>s+1); }
+    else onNightComplete(actions);
   }
 
-  // Internal component for picking players
-  const PlayerPicker = ({ prompt, subprompt, onPick, exclude = [], picked = null, resultText = null }) => {
-    const choices = alivePlayers.filter((p) => !exclude.includes(p.id));
+  if (step === "intro") {
     return (
-      <div style={{ width: "100%", maxWidth: 400 }}>
-        <NarratorText text={prompt} subtext={subprompt} />
-        <Divider />
-        {resultText ? (
-          <div style={{ textAlign: "center", marginBottom: 24 }}>
-            <p style={{ color: "var(--accent-gold)", fontStyle: "italic", fontSize: "1.1rem" }}>{resultText}</p>
-          </div>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
-            {choices.map((p) => (
-              <button key={p.id} onClick={() => onPick(p)} style={{ padding: "14px 20px", background: picked === p.id ? "var(--accent-gold)22" : "var(--bg-panel)", border: `1.5px solid ${picked === p.id ? "var(--accent-gold)" : "var(--border)"}`, borderRadius: 6, color: picked === p.id ? "var(--accent-gold)" : "var(--text-primary)", cursor: "pointer", fontFamily: "'Crimson Pro', serif", fontSize: "1.1rem", textAlign: "left", transition: "all 0.2s" }}>{p.name}</button>
-            ))}
-          </div>
-        )}
-        <Btn onClick={advanceStep} disabled={!resultText && picked === null}>{resultText ? "UNDERSTOOD →" : "CONFIRM"}</Btn>
+      <div className="screen scanline-fx" style={{ background:"radial-gradient(ellipse at 50% 20%, #0f0520 0%, #03030a 80%)" }}>
+        <ParticleCanvas mode="embers" />
+        <AmbientOrb color="#4a0080" x={30} y={20} size={400} delay={0} />
+        <AmbientOrb color="#000066" x={70} y={60} size={300} delay={5} />
+        <div style={{ textAlign:"center", animation:"fadeUp 0.8s ease forwards" }}>
+          <div style={{ fontSize:"5rem", marginBottom:24, animation:"float 4s ease-in-out infinite", filter:"drop-shadow(0 0 24px #6644aa)" }}>🌙</div>
+          <div className="fraktur" style={{ fontSize:"clamp(2rem, 8vw, 3.5rem)", color:"#9955cc", textShadow:"0 0 30px #9955cc88", marginBottom:10 }}>Night Falls</div>
+          <p style={{ color:"var(--mist)", fontSize:"0.65rem", letterSpacing:"0.25em", marginBottom:8 }}>ROUND {round}</p>
+          <div style={{ height:1, width:200, background:"linear-gradient(90deg,transparent,#9955cc55,transparent)", margin:"20px auto" }} />
+          <p className="playfair" style={{ color:"var(--ghost)", fontStyle:"italic", fontSize:"clamp(1rem,4vw,1.25rem)", lineHeight:1.8, maxWidth:320, margin:"0 auto 44px" }}>"Darkness descends upon the town.<br/>Close your eyes and trust no one."</p>
+          <button className="btn-primary" onClick={advance}><span>EVERYONE CLOSE YOUR EYES</span></button>
+        </div>
       </div>
     );
-  };
+  }
 
-  const nightBg = { background: "linear-gradient(180deg, #040408 0%, #0a0a14 100%)" };
+  if (step === "countdown") {
+    return (
+      <div className="screen" style={{ background:"#03030a" }}>
+        <AmbientOrb color="#e63946" x={50} y={50} size={700} delay={0} />
+        <div style={{ textAlign:"center" }}>
+          <p style={{ color:"var(--mist)", fontSize:"0.65rem", letterSpacing:"0.3em", marginBottom:16 }}>MAKE SURE ALL EYES ARE CLOSED</p>
+          <p className="playfair" style={{ color:"rgba(255,255,255,0.2)", fontStyle:"italic", fontSize:"1rem", marginBottom:52 }}>The Mafia is about to be called…</p>
+          <div style={{ display:"flex", justifyContent:"center", marginBottom:52 }}><CountdownRing seconds={5} onComplete={advance} color="#e63946" size={240} /></div>
+          <div style={{ padding:"12px 28px", background:"rgba(230,57,70,0.08)", border:"1px solid rgba(230,57,70,0.2)", borderRadius:2, display:"inline-block" }}>
+            <p style={{ color:"rgba(230,57,70,0.7)", fontSize:"0.7rem", letterSpacing:"0.2em" }}>DO NOT OPEN YOUR EYES</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  if (currentStep === "intro") return (<Screen style={nightBg}><div style={{ textAlign: "center" }}><div style={{ fontSize: "4rem", marginBottom: 24, animation: "pulse 3s ease-in-out infinite" }}>🌙</div><NarratorText text={NARRATOR.nightFalls} /><div style={{ marginTop: 40 }}><p style={{ color: "var(--text-muted)", fontStyle: "italic", marginBottom: 24, fontSize: "0.95rem" }}>Round {round} — Pass the device to the Mafia player(s)</p><Btn onClick={advanceStep}>READY →</Btn></div></div></Screen>);
-  if (currentStep === "mafia") return (<Screen style={nightBg}><div style={{ width: "100%", maxWidth: 400 }}><div style={{ textAlign: "center", marginBottom: 24 }}><span style={{ fontSize: "0.85rem", color: "#e63946", letterSpacing: "0.12em" }}>🔪 FOR: {mafiaPlayers.map(p=>p.name).join(" & ")}</span></div><PlayerPicker prompt={NARRATOR.mafiaWakes} subprompt="The rest of the town sleeps…" onPick={(p) => setNightActions({ ...nightActions, mafiaTarget: p.id })} picked={nightActions.mafiaTarget} exclude={mafiaPlayers.map((p) => p.id)} /></div></Screen>);
-  if (currentStep === "doctor") return (<Screen style={nightBg}><div style={{ width: "100%", maxWidth: 400 }}><div style={{ textAlign: "center", marginBottom: 24 }}><span style={{ fontSize: "0.85rem", color: "#27ae60", letterSpacing: "0.12em" }}>💊 FOR: {doctorPlayer?.name}</span></div><PlayerPicker prompt={NARRATOR.doctorWakes} subprompt="You can save yourself too." onPick={(p) => setNightActions({ ...nightActions, doctorSave: p.id })} picked={nightActions.doctorSave} /></div></Screen>);
-  if (currentStep === "detective") return (<Screen style={nightBg}><div style={{ width: "100%", maxWidth: 400 }}><div style={{ textAlign: "center", marginBottom: 24 }}><span style={{ fontSize: "0.85rem", color: "#2980b9", letterSpacing: "0.12em" }}>🔍 FOR: {detectivePlayer?.name}</span></div><PlayerPicker prompt={NARRATOR.detectiveWakes} subprompt="You'll learn if they are Mafia." onPick={(p) => { setNightActions({ ...nightActions, detectiveTarget: p.id }); setDetectiveResult(p.role === "mafia" ? `⚠️ ${p.name} IS Mafia.` : `✅ ${p.name} is NOT Mafia.`); }} picked={nightActions.detectiveTarget} resultText={detectiveResult} exclude={[detectivePlayer?.id]} /></div></Screen>);
-  if (currentStep === "sleeping") return (<Screen style={nightBg}><div style={{ textAlign: "center" }}><div style={{ fontSize: "3rem", marginBottom: 24, animation: "pulse 2s ease-in-out infinite" }}>😴</div><NarratorText text={NARRATOR.allSleep} /><div style={{ marginTop: 40 }}><p style={{ color: "var(--text-muted)", fontStyle: "italic", marginBottom: 24, fontSize: "0.95rem" }}>Everyone may open their eyes now.</p><Btn onClick={advanceStep}>DAWN APPROACHES →</Btn></div></div></Screen>);
+  if (step === "mafia") return <NightAction roleLabel="MAFIA" roleColor="#e63946" roleGlow="#e6394640" forPlayers={mafiaPlayers.map(p=>p.name).join(" & ")} prompt="Who shall be silenced tonight?" choices={alive.filter(p=>!mafiaPlayers.find(m=>m.id===p.id))} selected={actions.mafiaTarget} onSelect={id=>setActions({...actions, mafiaTarget:id})} onConfirm={advance} />;
+  if (step === "doctor") return <NightAction roleLabel="DOCTOR" roleColor="#2ecc71" roleGlow="#2ecc7140" forPlayers={doctorPlayer?.name} prompt="Who will you shield from death?" choices={alive} selected={actions.doctorSave} onSelect={id=>setActions({...actions, doctorSave:id})} onConfirm={advance} />;
+  if (step === "detective") {
+    function check(p) { const full = players.find(pl=>pl.id===p.id); setActions({...actions, detectiveTarget:p.id}); setDetectiveResult(full.role==="mafia" ? {text:`${p.name} IS Mafia.`, bad:true} : {text:`${p.name} is NOT Mafia.`, bad:false}); }
+    return <NightAction roleLabel="DETECTIVE" roleColor="#4cc9f0" roleGlow="#4cc9f040" forPlayers={detectivePlayer?.name} prompt="Who do you investigate tonight?" choices={alive.filter(p=>p.id!==detectivePlayer?.id)} selected={actions.detectiveTarget} onSelect={p=>check({...alive.find(a=>a.id===p)})} onConfirm={advance} resultText={detectiveResult} />;
+  }
+  
+  if (step === "sleeping") return (<div className="screen" style={{ background:"radial-gradient(ellipse at 50% 80%, #0f0520 0%, #03030a 80%)" }}><ParticleCanvas mode="embers" /><div style={{ textAlign:"center", animation:"fadeUp 0.6s ease forwards" }}><div style={{ fontSize:"4.5rem", marginBottom:24, animation:"breathe 3s ease-in-out infinite" }}>😴</div><h2 className="playfair" style={{ color:"var(--mist)", fontSize:"1.6rem", marginBottom:10 }}>The Night Passes</h2><p style={{ color:"var(--mist)", fontSize:"0.75rem", letterSpacing:"0.15em", marginBottom:44, opacity:0.7 }}>EVERYONE MAY OPEN THEIR EYES</p><button className="btn-primary" onClick={advance}><span>☀️  DAWN APPROACHES</span></button></div></div>);
   return null;
 }
 
-// --- DAY PHASE SCREEN ---
+// ☀️ DAY PHASE SCREEN
 export function DayPhaseScreen({ eliminated, round, onDiscussionEnd, speak }) {
-  const [timeLeft, setTimeLeft] = useState(120);
-  const [discussing, setDiscussing] = useState(false);
+  const SECS = 120;
+  const [timeLeft, setTimeLeft] = useState(SECS);
+  const [mode, setMode] = useState("reveal");
+  const role = eliminated ? ROLES[eliminated.role] : null;
 
-  useEffect(() => { speak(NARRATOR.spoken.dayBreaks(eliminated?.name || null)); }, [speak, eliminated]);
-  useEffect(() => { if (!discussing) return; if (timeLeft <= 0) { onDiscussionEnd(); return; } const t = setTimeout(() => setTimeLeft(timeLeft - 1), 1000); return () => clearTimeout(t); }, [timeLeft, discussing, onDiscussionEnd]);
+  useEffect(() => { speak(NARRATOR.spoken.dayBreaks(eliminated?.name||null)); }, []);
+  useEffect(() => { if (mode!=="discuss") return; if (timeLeft<=0) { onDiscussionEnd(); return; } const t = setTimeout(()=>setTimeLeft(s=>s-1), 1000); return () => clearTimeout(t); }, [timeLeft, mode]);
+  const mins = Math.floor(timeLeft/60); const secs = String(timeLeft%60).padStart(2,"0"); const pct = (timeLeft/SECS)*100;
 
-  const pct = ((timeLeft / 120) * 100).toFixed(1);
   return (
-    <Screen>
-      <div style={{ textAlign: "center", marginBottom: 32 }}><div style={{ fontSize: "3rem", marginBottom: 12 }}>☀️</div><span className="cinzel" style={{ fontSize: "0.85rem", color: "var(--accent-gold)", letterSpacing: "0.15em" }}>ROUND {round} — DAY</span></div>
-      <Card style={{ marginBottom: 24, textAlign: "center" }}>
-        {eliminated ? (<><p style={{ fontStyle: "italic", color: "var(--text-muted)", marginBottom: 8 }}>The town awakens to find…</p><h2 style={{ fontSize: "2rem", color: "#e63946", fontFamily: "'Cinzel Decorative', serif", marginBottom: 4 }}>{eliminated.name}</h2><p style={{ color: "var(--text-muted)", fontStyle: "italic", fontSize: "0.9rem" }}>has been eliminated. They were a <span style={{ color: ROLES[eliminated.role].color }}>{ROLES[eliminated.role].emoji} {ROLES[eliminated.role].name}</span>.</p></>) : (<><p style={{ fontStyle: "italic", color: "var(--text-muted)", marginBottom: 8 }}>The town awakens…</p><h2 style={{ fontSize: "1.5rem", color: "#27ae60", fontFamily: "'Cinzel Decorative', serif" }}>✨ No one was eliminated!</h2><p style={{ color: "var(--text-muted)", fontStyle: "italic", fontSize: "0.9rem", marginTop: 8 }}>The Doctor saved someone last night.</p></>)}
-      </Card>
-      {discussing ? (
-        <div style={{ width: "100%", maxWidth: 420 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}><span style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>DISCUSSION TIME</span><span className="cinzel" style={{ fontSize: "1.8rem", color: timeLeft < 30 ? "#e63946" : "var(--accent-gold)", transition: "color 0.5s" }}>{Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, "0")}</span></div>
-          <div style={{ background: "var(--bg-panel)", borderRadius: 4, height: 6, overflow: "hidden", marginBottom: 20 }}><div style={{ height: "100%", width: `${pct}%`, background: timeLeft < 30 ? "#e63946" : "var(--accent-gold)", transition: "width 1s linear, background 0.5s", borderRadius: 4 }} /></div>
-          <p style={{ textAlign: "center", fontStyle: "italic", color: "var(--text-muted)", marginBottom: 24 }}>{NARRATOR.discuss}</p>
-          <Btn onClick={onDiscussionEnd} variant="ghost">Skip to Voting →</Btn>
-        </div>
-      ) : (<Btn onClick={() => { setDiscussing(true); speak(NARRATOR.spoken.discuss); }}>START DISCUSSION ⏱️</Btn>)}
-    </Screen>
+    <div className="screen" style={{ background:`radial-gradient(ellipse at 50% 0%, ${eliminated?"#1a0800":"#001a08"} 0%, #03030a 70%)` }}>
+      <ParticleCanvas mode="embers" />
+      <AmbientOrb color={eliminated?"#c9702a":"#2ecc71"} x={50} y={0} size={600} delay={0} />
+      <div style={{ position:"fixed", top:20, left:20, zIndex:10 }}><span style={{ color:"var(--mist)", fontSize:"0.62rem", letterSpacing:"0.22em" }}>ROUND {round} · DAY</span></div>
+      <div style={{ width:"100%", maxWidth:440, textAlign:"center" }}>
+        {mode === "reveal" && (
+          <div style={{ animation:"fadeUp 0.7s ease forwards" }}>
+            <div style={{ fontSize:"3.2rem", marginBottom:22 }}>☀️</div>
+            {eliminated ? (<><p className="playfair" style={{ color:"var(--mist)", fontStyle:"italic", fontSize:"0.9rem", marginBottom:10 }}>Dawn reveals a grim sight…</p><h2 className="playfair blood-text" style={{ fontSize:"clamp(2rem, 8vw, 3rem)", marginBottom:8 }}>{eliminated.name}</h2><p style={{ color:"var(--mist)", fontSize:"0.78rem", letterSpacing:"0.1em", marginBottom:28 }}>was found dead in the night</p><div className="glass-card" style={{ padding:"22px 28px", marginBottom:36, border:`1px solid ${role.color}40`, background:`${role.color}0a`, animation:"revealCard 0.6s 0.2s ease both" }}><div style={{ fontSize:"2.8rem", marginBottom:10 }}>{role.emoji}</div><div style={{ color:"var(--mist)", fontSize:"0.62rem", letterSpacing:"0.22em", marginBottom:5 }}>REVEALED ROLE</div><div className="playfair" style={{ color:role.color, fontSize:"1.5rem", textShadow:`0 0 20px ${role.color}` }}>{role.name}</div></div></>) : (<><h2 className="playfair" style={{ color:"#2ecc71", fontSize:"clamp(1.5rem,6vw,2.2rem)", marginBottom:12, textShadow:"0 0 20px #2ecc7180" }}>The Town Slept Safely</h2><p className="playfair" style={{ color:"var(--mist)", fontStyle:"italic", marginBottom:36, lineHeight:1.7 }}>No one was eliminated tonight.<br/>The Doctor's vigil held.</p></>)}
+            <button className="btn-primary" onClick={()=>{ setMode("discuss"); speak(NARRATOR.spoken.discuss); }}><span>BEGIN DISCUSSION ⏱️</span></button>
+          </div>
+        )}
+        {mode === "discuss" && (
+          <div style={{ animation:"fadeUp 0.5s ease forwards" }}>
+            <h3 className="playfair" style={{ color:"var(--gold)", fontSize:"1.2rem", marginBottom:36, fontStyle:"italic" }}>"Who among you is the deceiver?"</h3>
+            <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:12, marginBottom:36 }}><CountdownRing seconds={timeLeft} onComplete={onDiscussionEnd} color={timeLeft<30?"#e63946":"#c9a84c"} size={180} autoStart={false} /><span className="playfair" style={{ color:timeLeft<30?"var(--blood)":"var(--gold)", fontSize:"2rem", transition:"color 0.5s" }}>{mins}:{secs}</span></div>
+            <div style={{ background:"rgba(255,255,255,0.05)", borderRadius:2, height:3, marginBottom:32, overflow:"hidden" }}><div style={{ height:"100%", width:`${pct}%`, background: timeLeft<30 ? "linear-gradient(90deg,#9b1c26,#e63946)" : "linear-gradient(90deg,#8b6914,#c9a84c)", transition:"width 1s linear, background 0.5s", boxShadow:`0 0 12px ${timeLeft<30?"#e63946":"#c9a84c"}` }} /></div>
+            <button className="btn-ghost" onClick={onDiscussionEnd}>Skip to Voting →</button>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 
-// --- VOTING PHASE SCREEN ---
+// 🗳️ VOTING PHASE SCREEN
 export function VotingPhaseScreen({ players, onVotingComplete, speak }) {
-  const alivePlayers = players.filter((p) => p.alive);
+  const alive = players.filter(p=>p.alive);
   const [votes, setVotes] = useState({});
-  const [voterIndex, setVoterIndex] = useState(0);
+  const [voterIdx, setVoterIdx] = useState(0);
   const [hasVoted, setHasVoted] = useState(false);
-  const [selectedTarget, setSelectedTarget] = useState(null);
-  const currentVoter = alivePlayers[voterIndex];
-  const allVoted = voterIndex >= alivePlayers.length;
+  const [selected, setSelected] = useState(null);
+  const voter = alive[voterIdx];
+  const done = voterIdx >= alive.length;
 
-  useEffect(() => { speak(NARRATOR.spoken.voteTime); }, [speak]);
+  useEffect(()=>{ speak(NARRATOR.spoken.voteTime); },[]);
 
-  function handleVote() { setVotes({ ...votes, [currentVoter.id]: selectedTarget }); setHasVoted(true); }
-  function handleNext() { setHasVoted(false); setSelectedTarget(null); setVoterIndex(voterIndex + 1); }
-
-  if (allVoted) return (<Screen><div style={{ textAlign: "center", maxWidth: 400 }}><div style={{ fontSize: "3rem", marginBottom: 16 }}>⚖️</div><NarratorText text="All votes are in.\nThe town has spoken." /><Divider /><div style={{ marginTop: 24 }}><Btn onClick={() => { speak("All votes are in. The town has spoken."); onVotingComplete(votes); }}>REVEAL THE RESULT</Btn></div></div></Screen>);
+  if (done) return (<div className="screen" style={{ background:"radial-gradient(ellipse at 50% 40%, #1a0505 0%, #03030a 70%)" }}><AmbientOrb color="#e63946" x={50} y={40} size={600} delay={0} /><div style={{ textAlign:"center", animation:"scalePop 0.5s ease forwards" }}><div style={{ fontSize:"4.5rem", marginBottom:20, animation:"float 3s ease-in-out infinite" }}>⚖️</div><h2 className="playfair gold-text" style={{ fontSize:"2.2rem", marginBottom:10 }}>All Votes Cast</h2><p className="playfair" style={{ color:"var(--mist)", fontStyle:"italic", marginBottom:44 }}>The fate of one soul hangs in the balance</p><button className="btn-primary" onClick={()=>{ speak("All votes are in. The town has spoken."); onVotingComplete(votes); }}><span>REVEAL THE VERDICT</span></button></div></div>);
 
   return (
-    <Screen>
-      <div style={{ display: "flex", gap: 5, marginBottom: 28 }}>{alivePlayers.map((_, i) => (<div key={i} style={{ flex: 1, height: 3, borderRadius: 2, background: i < voterIndex ? "var(--accent-gold)" : i === voterIndex ? "#fff" : "var(--bg-panel)", transition: "all 0.3s" }} />))}</div>
-      <div style={{ textAlign: "center", marginBottom: 8 }}><span style={{ color: "var(--text-muted)", fontSize: "0.85rem", letterSpacing: "0.1em" }}>🗳️ VOTING</span></div>
-      <h2 className="cinzel" style={{ fontSize: "1.4rem", color: "var(--accent-gold)", marginBottom: 4, textAlign: "center" }}>{currentVoter?.name}</h2>
-      <p style={{ color: "var(--text-muted)", fontStyle: "italic", marginBottom: 24, textAlign: "center" }}>Who do you vote to eliminate?</p>
-      {hasVoted ? (
-        <div style={{ textAlign: "center", maxWidth: 400 }}><Card><p style={{ color: "var(--text-muted)", fontStyle: "italic" }}>Vote cast. Pass the device.</p></Card><Btn onClick={handleNext}>{voterIndex < alivePlayers.length - 1 ? "NEXT VOTER →" : "SEE RESULTS"}</Btn></div>
-      ) : (
-        <div style={{ width: "100%", maxWidth: 400 }}><div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>{alivePlayers.filter((p) => p.id !== currentVoter?.id).map((p) => (<button key={p.id} onClick={() => setSelectedTarget(p.id)} style={{ padding: "14px 20px", background: selectedTarget === p.id ? "#e6394622" : "var(--bg-panel)", border: `1.5px solid ${selectedTarget === p.id ? "#e63946" : "var(--border)"}`, borderRadius: 6, color: selectedTarget === p.id ? "#e63946" : "var(--text-primary)", cursor: "pointer", fontFamily: "'Crimson Pro', serif", fontSize: "1.1rem", textAlign: "left", transition: "all 0.2s" }}>{p.name}</button>))}</div><Btn onClick={handleVote} disabled={selectedTarget === null}>CAST VOTE</Btn></div>
-      )}
-    </Screen>
+    <div className="screen" style={{ background:"radial-gradient(ellipse at 50% 10%, #0d0a1a 0%, #03030a 70%)" }}>
+      <AmbientOrb color="#9b59b6" x={30} y={20} size={400} delay={0} />
+      <AmbientOrb color="#e63946" x={70} y={70} size={300} delay={3} />
+      <div style={{ position:"fixed", top:0, left:0, right:0, height:3, background:"rgba(255,255,255,0.04)", zIndex:20 }}><div style={{ height:"100%", width:`${(voterIdx/alive.length)*100}%`, background:"linear-gradient(90deg,#9b59b6,#e63946)", transition:"width 0.5s ease", boxShadow:"0 0 8px #e63946" }} /></div>
+      <div style={{ width:"100%", maxWidth:400, animation:"fadeUp 0.4s ease forwards" }}>
+        <div style={{ textAlign:"center", marginBottom:28 }}><p style={{ color:"var(--mist)", fontSize:"0.62rem", letterSpacing:"0.28em", marginBottom:8 }}>VOTER {voterIdx+1} OF {alive.length}</p><h2 className="playfair gold-text" style={{ fontSize:"clamp(1.8rem,7vw,2.6rem)" }}>{voter?.name}</h2></div>
+        {hasVoted ? (<div style={{ textAlign:"center" }}><div className="glass-card" style={{ padding:32, marginBottom:24 }}><div style={{ fontSize:"3rem", marginBottom:14 }}>🗳️</div><p className="playfair" style={{ color:"var(--mist)", fontStyle:"italic" }}>Vote recorded.<br/>Pass the device.</p></div><button className="btn-primary" onClick={()=>{ setHasVoted(false); setSelected(null); setVoterIdx(v=>v+1); }}><span>{voterIdx<alive.length-1?"NEXT VOTER →":"SEE RESULTS"}</span></button></div>) : (<><p style={{ color:"var(--mist)", fontSize:"0.75rem", letterSpacing:"0.1em", textAlign:"center", marginBottom:20 }}>Who do you vote to eliminate?</p><div style={{ display:"flex", flexDirection:"column", gap:8, marginBottom:24 }}>{alive.filter(p=>p.id!==voter?.id).map((p,i)=>(<button key={p.id} className={`player-btn${selected===p.id?" selected":""}`} onClick={()=>setSelected(p.id)} style={{ animation:`fadeUp ${0.1+i*0.05}s ease both` }}><div style={{ display:"flex", alignItems:"center", gap:12 }}><div style={{ width:8, height:8, borderRadius:"50%", background:selected===p.id?"#e63946":"rgba(255,255,255,0.15)", boxShadow:selected===p.id?"0 0 8px #e63946":"none", transition:"all 0.2s" }} />{p.name}</div></button>))}</div><button className="btn-primary" onClick={()=>{ setVotes({...votes,[voter.id]:selected}); setHasVoted(true); }} disabled={selected===null}><span>CAST VOTE</span></button></>)}
+      </div>
+    </div>
   );
 }
 
-// --- RESULT & GAME OVER SCREENS ---
+// 🎯 RESULT SCREEN
 export function ResultScreen({ eliminated, tie, onContinue, speak }) {
-  useEffect(() => { speak(NARRATOR.spoken.voteReveal(eliminated?.name || null)); }, [speak, eliminated]);
-  return (<Screen><div style={{ textAlign: "center", maxWidth: 400 }}><div style={{ fontSize: "3rem", marginBottom: 16 }}>⚖️</div><NarratorText text={NARRATOR.voteReveal(eliminated?.name || null)} />{eliminated && (<><Divider /><Card style={{ margin: "0 auto 24px" }}><p style={{ color: "var(--text-muted)", fontStyle: "italic", marginBottom: 4 }}>They were a</p><span style={{ fontSize: "1.4rem", color: ROLES[eliminated.role].color, fontFamily: "'Cinzel Decorative', serif" }}>{ROLES[eliminated.role].emoji} {ROLES[eliminated.role].name}</span></Card></>)}{tie && <p style={{ color: "var(--text-muted)", fontStyle: "italic", marginBottom: 24 }}>It was a tie — no one was eliminated.</p>}<Btn onClick={onContinue}>NEXT ROUND →</Btn></div></Screen>);
+  useEffect(()=>{ speak(NARRATOR.spoken.voteReveal(eliminated?.name||null)); },[]);
+  const role = eliminated ? ROLES[eliminated.role] : null;
+
+  return (
+    <div className="screen" style={{ background:"radial-gradient(ellipse at 50% 30%, #1a0505 0%, #03030a 70%)" }}>
+      <ParticleCanvas mode={eliminated?"blood":"embers"} />
+      <AmbientOrb color={eliminated?"#e63946":"#c9a84c"} x={50} y={30} size={600} delay={0} />
+      <div style={{ textAlign:"center", maxWidth:420, animation:"fadeUp 0.7s ease forwards" }}>
+        <div style={{ fontSize:"4rem", marginBottom:20 }}>⚖️</div>
+        {eliminated ? (<><p style={{ color:"var(--mist)", fontSize:"0.65rem", letterSpacing:"0.25em", marginBottom:12 }}>THE TOWN HAS SPOKEN</p><h2 className="playfair blood-text" style={{ fontSize:"clamp(2rem,8vw,3rem)", marginBottom:8 }}>{eliminated.name}</h2><p style={{ color:"var(--mist)", fontStyle:"italic", marginBottom:28 }}>has been cast out from the town</p><div className="glass-card" style={{ padding:"24px 28px", marginBottom:36, border:`1px solid ${role.color}50`, background:`${role.color}0a`, animation:"revealCard 0.6s 0.3s ease both" }}><div style={{ fontSize:"3rem", marginBottom:10 }}>{role.emoji}</div><div style={{ color:"var(--mist)", fontSize:"0.62rem", letterSpacing:"0.22em", marginBottom:5 }}>THEY WERE THE</div><div className="playfair" style={{ color:role.color, fontSize:"1.9rem", textShadow:`0 0 20px ${role.color}` }}>{role.name}</div></div></>) : (<><h2 className="playfair gold-text" style={{ fontSize:"1.9rem", marginBottom:16 }}>It's a Tie</h2><p className="playfair" style={{ color:"var(--mist)", fontStyle:"italic", marginBottom:36, lineHeight:1.8 }}>The town could not agree.<br/>No one was eliminated today.</p></>)}
+        <button className="btn-primary" onClick={onContinue}><span>NEXT ROUND →</span></button>
+      </div>
+    </div>
+  );
 }
 
+// 🏆 GAME OVER SCREEN
 export function GameOverScreen({ winner, players, onRestart, speak }) {
-  const isMafia = winner === "mafia";
-  useEffect(() => { speak(isMafia ? NARRATOR.spoken.mafiaWins : NARRATOR.spoken.villagersWin); }, [speak, isMafia]);
+  const isMafia = winner==="mafia";
+  useEffect(()=>{ speak(isMafia?NARRATOR.spoken.mafiaWins:NARRATOR.spoken.villagersWin); },[]);
+
   return (
-    <Screen style={{ background: isMafia ? "linear-gradient(180deg, #1a0505 0%, #0a0a0f 100%)" : "linear-gradient(180deg, #050f05 0%, #0a0a0f 100%)" }}>
-      <div style={{ textAlign: "center", maxWidth: 440 }}><div style={{ fontSize: "5rem", marginBottom: 16, animation: "float 2s ease-in-out infinite" }}>{isMafia ? "🔪" : "🎉"}</div><h1 className="cinzel" style={{ fontSize: "clamp(2rem, 7vw, 3rem)", color: isMafia ? "#e63946" : "#27ae60", marginBottom: 8 }}>{isMafia ? "MAFIA WINS" : "TOWN WINS"}</h1><Divider /><p style={{ fontStyle: "italic", color: "var(--text-muted)", marginBottom: 24 }}>{isMafia ? NARRATOR.mafiaWins : NARRATOR.villagersWin}</p><Card style={{ marginBottom: 32, textAlign: "left" }}><p className="cinzel" style={{ fontSize: "0.75rem", color: "var(--accent-gold)", marginBottom: 12, letterSpacing: "0.1em" }}>ALL ROLES REVEALED</p>{players.map((p) => (<div key={p.id} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid var(--border)", opacity: p.alive ? 1 : 0.5 }}><span style={{ color: p.alive ? "var(--text-primary)" : "var(--text-muted)" }}>{p.alive ? "🟢" : "💀"} {p.name}</span><span style={{ color: ROLES[p.role].color, fontSize: "0.9rem" }}>{ROLES[p.role].emoji} {ROLES[p.role].name}</span></div>))}</Card><Btn onClick={onRestart}>PLAY AGAIN</Btn></div>
-    </Screen>
+    <div className="screen" style={{ background:`radial-gradient(ellipse at 50% 25%, ${isMafia?"#2d0000":"#002d0f"} 0%, #03030a 70%)` }}>
+      <ParticleCanvas mode={isMafia?"blood":"embers"} />
+      <AmbientOrb color={isMafia?"#e63946":"#2ecc71"} x={50} y={15} size={700} delay={0} />
+      <AmbientOrb color={isMafia?"#9b1c26":"#1a7a40"} x={20} y={75} size={400} delay={4} />
+      <div style={{ width:"100%", maxWidth:460, textAlign:"center" }}>
+        <div style={{ animation:"victoryFlare 0.9s ease forwards" }}>
+          <div style={{ fontSize:"6rem", marginBottom:16, animation:"float 3s ease-in-out infinite", filter:`drop-shadow(0 0 35px ${isMafia?"#e63946":"#2ecc71"})` }}>{isMafia?"🔪":"🕯️"}</div>
+          <div className="fraktur" style={{ fontSize:"clamp(2.5rem,10vw,5rem)", color:isMafia?"#e63946":"#2ecc71", textShadow:`0 0 40px ${isMafia?"#e6394888":"#2ecc7188"}, 0 0 80px ${isMafia?"#e6394840":"#2ecc7140"}`, marginBottom:10, lineHeight:1.1 }}>{isMafia?"Mafia Wins":"Town Wins"}</div>
+          <p className="playfair" style={{ color:"var(--mist)", fontStyle:"italic", fontSize:"1rem", marginBottom:36 }}>{isMafia?"The darkness has consumed the town.":"Justice prevails. The Mafia is unmasked."}</p>
+        </div>
+        <div className="glass-card" style={{ padding:20, marginBottom:32, textAlign:"left", animation:"fadeUp 0.6s 0.4s ease both" }}>
+          <div style={{ display:"flex", justifyContent:"space-between", marginBottom:14, paddingBottom:10, borderBottom:"1px solid var(--border)" }}><span style={{ color:"var(--mist)", fontSize:"0.62rem", letterSpacing:"0.2em" }}>PLAYER</span><span style={{ color:"var(--mist)", fontSize:"0.62rem", letterSpacing:"0.2em" }}>ROLE</span></div>
+          {players.map((p,i) => { const r = ROLES[p.role]; return (<div key={p.id} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"10px 0", borderBottom:"1px solid rgba(255,255,255,0.04)", opacity:p.alive?1:0.4, animation:`fadeUp ${0.5+i*0.06}s ease both` }}><span style={{ color:p.alive?"var(--ghost)":"var(--mist)", display:"flex", alignItems:"center", gap:8, fontSize:"0.95rem" }}><span style={{ fontSize:"0.7rem" }}>{p.alive?"🟢":"💀"}</span> {p.name}</span><span style={{ color:r.color, fontSize:"0.85rem", display:"flex", alignItems:"center", gap:6 }}>{r.emoji} {r.name}</span></div>); })}
+        </div>
+        <button className="btn-primary" onClick={onRestart} style={{ animation:"fadeUp 0.6s 0.85s ease both" }}><span>PLAY AGAIN</span></button>
+      </div>
+    </div>
+  );
+}
+
+// Helpers
+function Pip({ count, color, label }) {
+  return (<div style={{ display:"flex", alignItems:"center", gap:4 }}>{Array.from({length:Math.max(0,count)}).map((_,i)=>(<div key={i} style={{ width:8, height:8, borderRadius:"50%", background:color, boxShadow:`0 0 6px ${color}` }} />))}<span style={{ color:"var(--mist)", fontSize:"0.62rem", marginLeft:2 }}>{label}</span></div>);
+}
+
+function NightAction({ roleLabel, roleColor, roleGlow, forPlayers, prompt, choices, selected, onSelect, onConfirm, resultText }) {
+  return (
+    <div className="screen" style={{ background:"radial-gradient(ellipse at 50% 0%, #070712 0%, #03030a 100%)" }}>
+      <AmbientOrb color={roleColor} x={50} y={10} size={380} delay={0} />
+      <div style={{ width:"100%", maxWidth:400, animation:"fadeUp 0.45s ease forwards" }}>
+        <div style={{ textAlign:"center", marginBottom:28 }}>
+          <div style={{ display:"inline-flex", alignItems:"center", gap:10, padding:"9px 22px", background:`${roleColor}14`, border:`1px solid ${roleColor}44`, borderRadius:2, marginBottom:8 }}><div style={{ width:7, height:7, borderRadius:"50%", background:roleColor, boxShadow:`0 0 10px ${roleColor}`, animation:"breathe 1.5s ease-in-out infinite" }} /><span style={{ color:roleColor, fontSize:"0.68rem", letterSpacing:"0.28em" }}>{roleLabel}</span></div>
+          <p style={{ color:"var(--mist)", fontSize:"0.7rem", letterSpacing:"0.08em" }}>for: <span style={{ color:"var(--ghost)" }}>{forPlayers}</span></p>
+        </div>
+        <h2 className="playfair" style={{ textAlign:"center", fontSize:"1.4rem", color:"var(--text)", fontStyle:"italic", marginBottom:28, lineHeight:1.4 }}>"{prompt}"</h2>
+        {resultText ? (<div style={{ textAlign:"center", padding:"28px 20px", background: resultText.bad ? "rgba(230,57,70,0.1)" : "rgba(46,204,113,0.1)", border:`1px solid ${resultText.bad?"#e6394640":"#2ecc7140"}`, borderRadius:2, marginBottom:28, animation:"scalePop 0.4s ease forwards" }}><div style={{ fontSize:"2.5rem", marginBottom:12 }}>{resultText.bad ? "⚠️" : "✅"}</div><p className="playfair" style={{ color:resultText.bad?"#e63946":"#2ecc71", fontSize:"1.2rem", fontStyle:"italic" }}>{resultText.text}</p></div>) : (<div style={{ display:"flex", flexDirection:"column", gap:8, marginBottom:24 }}>{choices.map((p,i) => (<button key={p.id} className={`player-btn${selected===p.id?" selected":""}`} onClick={()=>onSelect(p.id)} style={{ animation:`fadeUp ${0.1+i*0.055}s ease both` }}><div style={{ display:"flex", alignItems:"center", gap:12 }}><div style={{ width:8, height:8, borderRadius:"50%", background:selected===p.id?roleColor:"rgba(255,255,255,0.15)", boxShadow:selected===p.id?`0 0 8px ${roleColor}`:"none", transition:"all 0.2s" }} />{p.name}</div></button>))}</div>)}
+        <button className="btn-primary" onClick={onConfirm} disabled={!resultText && selected===null}><span>{resultText ? "UNDERSTOOD →" : "CONFIRM CHOICE"}</span></button>
+      </div>
+    </div>
   );
 }

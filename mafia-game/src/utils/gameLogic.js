@@ -1,71 +1,37 @@
-// Fisher-Yates shuffle
 export function assignRoles(playerNames, roleCounts) {
-  const rolePool = [];
-  Object.entries(roleCounts).forEach(([role, count]) => {
-    for (let i = 0; i < count; i++) rolePool.push(role);
-  });
-
-  while (rolePool.length < playerNames.length) rolePool.push("villager");
-
-  for (let i = rolePool.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [rolePool[i], rolePool[j]] = [rolePool[j], rolePool[i]];
-  }
-
-  return playerNames.map((name, i) => ({
-    id: i,
-    name,
-    role: rolePool[i],
-    alive: true,
-    investigated: false,
-  }));
+  const pool = [];
+  Object.entries(roleCounts).forEach(([role, count]) => { for (let i=0;i<count;i++) pool.push(role); });
+  while (pool.length < playerNames.length) pool.push("villager");
+  for (let i = pool.length-1; i>0; i--) { const j=Math.floor(Math.random()*(i+1)); [pool[i],pool[j]]=[pool[j],pool[i]]; }
+  return playerNames.map((name,i) => ({ id:i, name, role:pool[i], alive:true }));
 }
 
-export function resolveNight(players, nightActions) {
-  const { mafiaTarget, doctorSave } = nightActions;
+export function resolveNight(players, { mafiaTarget, doctorSave }) {
   let eliminated = null;
-
-  const updatedPlayers = players.map((p) => {
-    if (p.id === mafiaTarget && p.id !== doctorSave) {
-      eliminated = { ...p };
-      return { ...p, alive: false };
-    }
+  const updatedPlayers = players.map(p => {
+    if (p.id === mafiaTarget && p.id !== doctorSave) { eliminated = {...p}; return {...p, alive:false}; }
     return p;
   });
-
   return { updatedPlayers, eliminated };
 }
 
 export function resolveVotes(players, votes) {
   const tally = {};
-  Object.values(votes).forEach((targetId) => {
-    tally[targetId] = (tally[targetId] || 0) + 1;
-  });
-
-  const maxVotes = Math.max(...Object.values(tally), 0);
-  const topTargets = Object.keys(tally).filter((id) => tally[id] === maxVotes);
-
-  if (topTargets.length !== 1) return { updatedPlayers: players, eliminated: null, tie: true };
-
-  const eliminatedId = parseInt(topTargets[0]);
+  Object.values(votes).forEach(id => { tally[id] = (tally[id]||0)+1; });
+  const max = Math.max(...Object.values(tally), 0);
+  const tops = Object.keys(tally).filter(id => tally[id]===max);
+  if (tops.length !== 1) return { updatedPlayers:players, eliminated:null, tie:true };
+  const eid = parseInt(tops[0]);
   let eliminated = null;
-  const updatedPlayers = players.map((p) => {
-    if (p.id === eliminatedId) {
-      eliminated = { ...p };
-      return { ...p, alive: false };
-    }
-    return p;
-  });
-
-  return { updatedPlayers, eliminated, tie: false };
+  const updatedPlayers = players.map(p => { if(p.id===eid){eliminated={...p};return{...p,alive:false};}return p; });
+  return { updatedPlayers, eliminated, tie:false };
 }
 
 export function checkWinCondition(players) {
-  const alive = players.filter((p) => p.alive);
-  const mafiaCount = alive.filter((p) => p.role === "mafia").length;
-  const villagerCount = alive.length - mafiaCount;
-
-  if (mafiaCount === 0) return "villagers";
-  if (mafiaCount >= villagerCount) return "mafia";
+  const alive = players.filter(p=>p.alive);
+  const mafia = alive.filter(p=>p.role==="mafia").length;
+  const town = alive.length - mafia;
+  if (mafia===0) return "villagers";
+  if (mafia>=town) return "mafia";
   return null;
 }

@@ -1,72 +1,130 @@
-import React from "react";
+import React, { useRef, useEffect, useState } from "react";
 
-export function Screen({ children, style = {}, className = "" }) {
-  return (
-    <div style={{
-      minHeight: "100vh", display: "flex", flexDirection: "column",
-      alignItems: "center", justifyContent: "center", padding: "24px 20px",
-      animation: "fadeIn 0.5s ease forwards", position: "relative", ...style,
-    }} className={className}>
-      {children}
-    </div>
-  );
+// ✨ PARTICLE CANVAS
+export function ParticleCanvas({ mode = "embers" }) {
+  const canvasRef = useRef(null);
+  const animRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    let particles = [];
+
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    resize();
+    window.addEventListener("resize", resize);
+
+    function spawn(initial = false) {
+      const isBlood = mode === "blood";
+      return {
+        x: Math.random() * canvas.width,
+        y: initial ? Math.random() * canvas.height : (isBlood ? -10 : canvas.height + 10),
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: isBlood ? Math.random() * 1 + 0.3 : -(Math.random() * 0.7 + 0.2),
+        size: Math.random() * (isBlood ? 3.5 : 2) + 0.8,
+        alpha: Math.random() * 0.6 + 0.1,
+        life: Math.random(),
+        speed: Math.random() * 0.004 + 0.001,
+        color: isBlood
+          ? `hsl(${352 + Math.random()*12}, 85%, ${25 + Math.random()*25}%)`
+          : `hsl(${28 + Math.random()*18}, ${55+Math.random()*35}%, ${48+Math.random()*35}%)`,
+        wobble: Math.random() * Math.PI * 2,
+        wobbleSpeed: (Math.random() - 0.5) * 0.025,
+      };
+    }
+
+    const count = mode === "blood" ? 45 : 65;
+    particles = Array.from({ length: count }, () => spawn(true));
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach((p, i) => {
+        p.wobble += p.wobbleSpeed;
+        p.x += p.vx + Math.sin(p.wobble) * 0.35;
+        p.y += p.vy;
+        p.life += p.speed;
+        const fade = Math.sin(p.life * Math.PI);
+        ctx.globalAlpha = p.alpha * fade;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size * Math.max(0.1, fade), 0, Math.PI * 2);
+        ctx.fill();
+        const gone = mode === "blood" ? p.y > canvas.height + 20 : p.y < -20;
+        if (gone || p.life >= 1) particles[i] = spawn();
+      });
+      ctx.globalAlpha = 1;
+      animRef.current = requestAnimationFrame(draw);
+    }
+    draw();
+
+    return () => { cancelAnimationFrame(animRef.current); window.removeEventListener("resize", resize); };
+  }, [mode]);
+
+  return <canvas ref={canvasRef} style={{ position:"fixed", inset:0, pointerEvents:"none", zIndex:0 }} />;
 }
 
-export function Divider() {
+// 🌑 AMBIENT ORB
+export function AmbientOrb({ color, x, y, size = 300, delay = 0 }) {
   return (
     <div style={{
-      width: "100%", maxWidth: 300, height: 1,
-      background: "linear-gradient(90deg, transparent, var(--accent-gold), transparent)",
-      margin: "20px auto",
+      position: "fixed",
+      left: `${x}%`, top: `${y}%`,
+      width: size, height: size,
+      borderRadius: "50%",
+      background: `radial-gradient(circle, ${color}1e 0%, transparent 70%)`,
+      transform: "translate(-50%, -50%)",
+      pointerEvents: "none",
+      animation: `orbDrift ${12 + delay * 2}s ease-in-out infinite`,
+      animationDelay: `${delay}s`,
+      filter: "blur(40px)",
+      zIndex: 0,
     }} />
   );
 }
 
-export function Btn({ children, onClick, variant = "primary", disabled = false, style = {} }) {
-  const variants = {
-    primary: { background: "linear-gradient(135deg, #c9952a, #d4a017)", color: "#0a0a0f", border: "none" },
-    danger:  { background: "transparent", color: "#e63946", border: "1.5px solid #e63946" },
-    ghost:   { background: "transparent", color: "var(--text-muted)", border: "1.5px solid rgba(255,255,255,0.1)" },
-  };
+// ⏱️ COUNTDOWN RING
+export function CountdownRing({ seconds, onComplete, color = "#e63946", size = 220, autoStart = true }) {
+  const [timeLeft, setTimeLeft] = useState(seconds);
+  const [key, setKey] = useState(0);
+  const total = seconds;
+  const r = (size / 2) - 16;
+  const circ = 2 * Math.PI * r;
+
+  useEffect(() => {
+    if (!autoStart) return;
+    if (timeLeft <= 0) { setTimeout(() => onComplete?.(), 400); return; }
+    const t = setTimeout(() => { setTimeLeft(s => s - 1); setKey(k => k + 1); }, 1000);
+    return () => clearTimeout(t);
+  }, [timeLeft, autoStart]);
+
+  const offset = circ * (timeLeft / total);
+  const urgent = timeLeft <= 2;
 
   return (
-    <button
-      onClick={onClick} disabled={disabled}
-      style={{
-        padding: "14px 32px", borderRadius: 4, fontSize: "1rem",
-        fontFamily: "'Cinzel Decorative', serif", fontWeight: 700, letterSpacing: "0.05em",
-        cursor: disabled ? "not-allowed" : "pointer", opacity: disabled ? 0.4 : 1,
-        transition: "all 0.2s ease", width: "100%", maxWidth: 340,
-        ...variants[variant], ...style,
-      }}
-    >
-      {children}
-    </button>
-  );
-}
-
-export function Card({ children, style = {} }) {
-  return (
-    <div style={{
-      background: "var(--bg-card)", border: "1px solid var(--border)",
-      borderRadius: 8, padding: "24px", width: "100%", maxWidth: 420, ...style,
-    }}>
-      {children}
-    </div>
-  );
-}
-
-export function NarratorText({ text, subtext }) {
-  return (
-    <div style={{ textAlign: "center", padding: "0 16px", animation: "fadeIn 0.8s ease forwards" }}>
-      <p style={{
-        fontSize: "clamp(1.4rem, 5vw, 2rem)", fontFamily: "'Crimson Pro', serif",
-        fontStyle: "italic", lineHeight: 1.5, color: "var(--text-primary)",
-        whiteSpace: "pre-line", marginBottom: subtext ? 16 : 0,
+    <div style={{ position:"relative", width:size, height:size, display:"flex", alignItems:"center", justifyContent:"center" }}>
+      <svg width={size} height={size} style={{ position:"absolute", transform:"rotate(-90deg)" }}>
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth={3} />
+        <circle
+          cx={size/2} cy={size/2} r={r}
+          fill="none" stroke={urgent ? "#e63946" : color} strokeWidth={3}
+          strokeLinecap="round"
+          strokeDasharray={circ}
+          strokeDashoffset={offset}
+          style={{ transition:"stroke-dashoffset 0.95s linear, stroke 0.3s", filter:`drop-shadow(0 0 10px ${urgent ? "#e63946" : color})` }}
+        />
+      </svg>
+      <div key={key} style={{
+        fontSize: size * 0.3,
+        fontFamily: "'Playfair Display', serif",
+        fontWeight: 900,
+        color: urgent ? "#e63946" : color,
+        animation: "countPulse 0.95s ease forwards",
+        textShadow: `0 0 24px ${urgent ? "#e63946" : color}`,
+        lineHeight: 1,
       }}>
-        {text}
-      </p>
-      {subtext && <p style={{ color: "var(--text-muted)", fontSize: "1rem", fontStyle: "italic" }}>{subtext}</p>}
+        {timeLeft}
+      </div>
     </div>
   );
 }
