@@ -85,8 +85,10 @@ export function RoleRevealScreen({ players, revealIndex, onRevealNext, onAllReve
 
   function handleReveal() {
     setShowing(true);
-    speak(`${player.name}. You are the ${role.name}. ${role.description}`);
+    // REMOVED: speak(`${player.name}. You are the ${role.name}. ${role.description}`);
+    // Now it will be silent when you tap "Reveal My Role"
   }
+
   function handleNext() {
     setShowing(false);
     setTimeout(() => { isLast ? onAllRevealed() : onRevealNext(); }, 300);
