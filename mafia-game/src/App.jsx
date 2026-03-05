@@ -7,43 +7,43 @@ import { SetupScreen, RoleRevealScreen, NightPhaseScreen, DayPhaseScreen, Voting
 export default function App() {
   const [gameState, setGameState] = useState({
     phase: "setup", players: [], round: 1, nightActions: {},
-    eliminated: null, winner: null, revealIndex: 0, tie: false,
+    eliminated: null, winner: null, revealIndex: 0, tie: false, eventLogs: []
   });
 
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const { speak, stop } = useNarrator(voiceEnabled);
 
-  const hasDoctor    = gameState.players.some((p) => p.role === "doctor");
+  const hasDoctor = gameState.players.some((p) => p.role === "doctor");
   const hasDetective = gameState.players.some((p) => p.role === "detective");
 
   // State Transitions
   function handleGameStart(playerNames, roleCounts) {
     const players = assignRoles(playerNames, roleCounts);
-    setGameState({ phase: "roleReveal", players, round: 1, nightActions: {}, eliminated: null, winner: null, revealIndex: 0, tie: false });
+    setGameState({ phase: "roleReveal", players, round: 1, nightActions: {}, eliminated: null, winner: null, revealIndex: 0, tie: false, eventLogs: [] });
   }
 
   function handleNightComplete(nightActions) {
     const { updatedPlayers, eliminated } = resolveNight(gameState.players, nightActions);
     const winner = checkWinCondition(updatedPlayers);
-    if (winner) {
-      setGameState((s) => ({ ...s, players: updatedPlayers, eliminated, winner, phase: "gameOver" }));
-    } else {
-      setGameState((s) => ({ ...s, phase: "day", players: updatedPlayers, eliminated, nightActions }));
-    }
+    setGameState((s) => {
+      const logs = eliminated ? [...(s.eventLogs || []), { round: s.round, name: eliminated.name, role: eliminated.role, phase: "Night" }] : (s.eventLogs || []);
+      if (winner) return { ...s, players: updatedPlayers, eliminated, winner, phase: "gameOver", eventLogs: logs };
+      return { ...s, phase: "day", players: updatedPlayers, eliminated, nightActions, eventLogs: logs };
+    });
   }
 
   function handleVotingComplete(votes) {
     const { updatedPlayers, eliminated, tie } = resolveVotes(gameState.players, votes);
     const winner = checkWinCondition(updatedPlayers);
-    if (winner) {
-      setGameState((s) => ({ ...s, players: updatedPlayers, eliminated, winner, phase: "gameOver" }));
-    } else {
-      setGameState((s) => ({ ...s, phase: "result", players: updatedPlayers, eliminated, tie }));
-    }
+    setGameState((s) => {
+      const logs = eliminated ? [...(s.eventLogs || []), { round: s.round, name: eliminated.name, role: eliminated.role, phase: "Day" }] : (s.eventLogs || []);
+      if (winner) return { ...s, players: updatedPlayers, eliminated, winner, phase: "gameOver", eventLogs: logs };
+      return { ...s, phase: "result", players: updatedPlayers, eliminated, tie, eventLogs: logs };
+    });
   }
 
   function handleRestart() {
-    setGameState({ phase: "setup", players: [], round: 1, nightActions: {}, eliminated: null, winner: null, revealIndex: 0, tie: false });
+    setGameState({ phase: "setup", players: [], round: 1, nightActions: {}, eliminated: null, winner: null, revealIndex: 0, tie: false, eventLogs: [] });
   }
 
   // Render Phase
@@ -65,8 +65,8 @@ export default function App() {
           onAllRevealed={() => setGameState((s) => ({ ...s, phase: "night" }))} speak={speak} />
       )}
       {phase === "night" && <NightPhaseScreen players={gameState.players} round={gameState.round} hasDoctor={hasDoctor} hasDetective={hasDetective} onNightComplete={handleNightComplete} speak={speak} stop={stop} />}
-      {phase === "day" && <DayPhaseScreen eliminated={gameState.eliminated} round={gameState.round} onDiscussionEnd={() => setGameState((s) => ({ ...s, phase: "voting" }))} speak={speak} />}
-      {phase === "voting" && <VotingPhaseScreen players={gameState.players} onVotingComplete={handleVotingComplete} speak={speak} />}
+      {phase === "day" && <DayPhaseScreen eliminated={gameState.eliminated} round={gameState.round} eventLogs={gameState.eventLogs} onDiscussionEnd={() => setGameState((s) => ({ ...s, phase: "voting" }))} speak={speak} />}
+      {phase === "voting" && <VotingPhaseScreen players={gameState.players} eventLogs={gameState.eventLogs} onVotingComplete={handleVotingComplete} speak={speak} />}
       {phase === "result" && <ResultScreen eliminated={gameState.eliminated} tie={gameState.tie} onContinue={() => setGameState((s) => ({ ...s, phase: "night", round: s.round + 1, eliminated: null, nightActions: {} }))} speak={speak} />}
       {phase === "gameOver" && <GameOverScreen winner={gameState.winner} players={gameState.players} onRestart={handleRestart} speak={speak} />}
     </>
