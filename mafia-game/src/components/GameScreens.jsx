@@ -24,6 +24,11 @@ export function SetupScreen({ onStart }) {
   }
 
   if (step === "names") {
+    const trimmedNames = playerNames.map(n => n.trim().toLowerCase());
+    const hasEmptyName = trimmedNames.some(n => !n);
+    const hasDuplicates = new Set(trimmedNames).size !== trimmedNames.length;
+    const namesValid = !hasEmptyName && !hasDuplicates;
+
     return (
       <div className="screen">
         <ParticleCanvas mode="embers" />
@@ -45,7 +50,8 @@ export function SetupScreen({ onStart }) {
             </div>
           </div>
           <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
-            <button className="btn-primary" onClick={handleStart} disabled={!isValid || playerNames.some(n=>!n.trim())}><span>BEGIN THE NIGHT ✦</span></button>
+            {hasDuplicates && <p style={{ color:"var(--blood)", fontSize:"0.72rem", textAlign:"center", letterSpacing:"0.1em", animation:"startle 0.5s ease" }}>Players must use unique identifiers.</p>}
+            <button className="btn-primary" onClick={handleStart} disabled={!isValid || !namesValid}><span>BEGIN THE NIGHT ✦</span></button>
             <button className="btn-ghost" onClick={() => setStep("config")}>← Back to Setup</button>
           </div>
         </div>
