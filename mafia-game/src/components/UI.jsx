@@ -27,8 +27,8 @@ export function ParticleCanvas({ mode = "embers" }) {
         life: Math.random(),
         speed: Math.random() * 0.004 + 0.001,
         color: isBlood
-          ? `hsl(${352 + Math.random()*12}, 85%, ${25 + Math.random()*25}%)`
-          : `hsl(${28 + Math.random()*18}, ${55+Math.random()*35}%, ${48+Math.random()*35}%)`,
+          ? `hsl(${352 + Math.random() * 12}, 85%, ${25 + Math.random() * 25}%)`
+          : `hsl(${28 + Math.random() * 18}, ${55 + Math.random() * 35}%, ${48 + Math.random() * 35}%)`,
         wobble: Math.random() * Math.PI * 2,
         wobbleSpeed: (Math.random() - 0.5) * 0.025,
       };
@@ -61,7 +61,7 @@ export function ParticleCanvas({ mode = "embers" }) {
     return () => { cancelAnimationFrame(animRef.current); window.removeEventListener("resize", resize); };
   }, [mode]);
 
-  return <canvas ref={canvasRef} style={{ position:"fixed", inset:0, pointerEvents:"none", zIndex:0 }} />;
+  return <canvas ref={canvasRef} style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0 }} />;
 }
 
 // 🌑 AMBIENT ORB
@@ -102,16 +102,16 @@ export function CountdownRing({ seconds, onComplete, color = "#e63946", size = 2
   const urgent = timeLeft <= 2;
 
   return (
-    <div style={{ position:"relative", width:size, height:size, display:"flex", alignItems:"center", justifyContent:"center" }}>
-      <svg width={size} height={size} style={{ position:"absolute", transform:"rotate(-90deg)" }}>
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth={3} />
+    <div style={{ position: "relative", width: size, height: size, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <svg width={size} height={size} style={{ position: "absolute", transform: "rotate(-90deg)" }}>
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth={3} />
         <circle
-          cx={size/2} cy={size/2} r={r}
+          cx={size / 2} cy={size / 2} r={r}
           fill="none" stroke={urgent ? "#e63946" : color} strokeWidth={3}
           strokeLinecap="round"
           strokeDasharray={circ}
           strokeDashoffset={offset}
-          style={{ transition:"stroke-dashoffset 0.95s linear, stroke 0.3s", filter:`drop-shadow(0 0 10px ${urgent ? "#e63946" : color})` }}
+          style={{ transition: "stroke-dashoffset 0.95s linear, stroke 0.3s", filter: `drop-shadow(0 0 10px ${urgent ? "#e63946" : color})` }}
         />
       </svg>
       <div key={key} style={{
@@ -124,6 +124,39 @@ export function CountdownRing({ seconds, onComplete, color = "#e63946", size = 2
         lineHeight: 1,
       }}>
         {timeLeft}
+      </div>
+    </div>
+  );
+}
+
+// 📜 GAME LOG MODAL
+export function GameLogModal({ isOpen, onClose, eventLogs = [] }) {
+  if (!isOpen) return null;
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", justifyContent: "center", alignItems: "center", background: "rgba(0,0,0,0.8)", backdropFilter: "blur(5px)", animation: "fadeUp 0.3s ease forwards" }}>
+      <div className="glass-card" style={{ width: "90%", maxWidth: 400, padding: 24, position: "relative", maxHeight: "80vh", overflowY: "auto", border: "1px solid var(--border)", background: "var(--bg-card)" }}>
+        <button onClick={onClose} style={{ position: "absolute", top: 16, right: 16, background: "transparent", border: "none", color: "var(--mist)", fontSize: "1.2rem", cursor: "pointer" }}>✕</button>
+        <h2 className="playfair gold-text" style={{ fontSize: "1.5rem", marginBottom: 20, textAlign: "center" }}>Game Log / Graveyard</h2>
+        {eventLogs.length === 0 ? (
+          <p style={{ color: "var(--mist)", textAlign: "center", fontStyle: "italic", margin: "40px 0" }}>No one has perished yet...</p>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {eventLogs.map((log, i) => (
+              <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: "rgba(255,255,255,0.05)", borderRadius: 4, border: "1px solid rgba(255,255,255,0.08)" }}>
+                <div>
+                  <div style={{ color: "var(--blood)", fontSize: "0.9rem", fontWeight: "bold", marginBottom: 4 }}>{log.name}</div>
+                  <div style={{ color: "var(--mist)", fontSize: "0.75rem", display: "flex", alignItems: "center", gap: 6 }}>
+                    {log.role}
+                  </div>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ color: "var(--gold)", fontSize: "0.7rem", letterSpacing: "0.1em" }}>ROUND {log.round}</div>
+                  <div style={{ color: "var(--ghost)", fontSize: "0.65rem", letterSpacing: "0.05em" }}>{log.phase}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
